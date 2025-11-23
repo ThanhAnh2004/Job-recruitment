@@ -2,15 +2,25 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { IUser } from 'src/users/users.interface';
+import { ResponseMessage, User } from 'src/decorator/customize';
 
 @Controller('jobs')
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) {}
+  constructor(private readonly jobsService: JobsService) { }
 
   @Post()
-  create(@Body() createJobDto: CreateJobDto) {
-    return this.jobsService.create(createJobDto);
+  @ResponseMessage('Create a new job')
+  create(@Body() createJobDto: CreateJobDto, @User() user: IUser) {
+    return this.jobsService.create(createJobDto, user);
   }
+
+  @Patch(':id')
+  @ResponseMessage('Update a job')
+  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto, @User() user: IUser) {
+    return this.jobsService.update(id, updateJobDto, user);
+  }
+
 
   @Get()
   findAll() {
@@ -22,10 +32,6 @@ export class JobsController {
     return this.jobsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
-    return this.jobsService.update(+id, updateJobDto);
-  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

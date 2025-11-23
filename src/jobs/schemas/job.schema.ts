@@ -1,16 +1,15 @@
-import { Prop, Schema } from "@nestjs/mongoose";
-import mongoose from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 
-Schema({ timestamps: true })
+export type JobDocument = HydratedDocument<Job>;
+
+@Schema({ timestamps: true })
 export class Job {
     @Prop()
     name: string;
 
     @Prop()
-    skill: string[];
-
-    @Prop()
-    password: string;
+    skills: string[];
 
     @Prop()
     location: string;
@@ -71,5 +70,6 @@ export class Job {
 
     @Prop()
     deletedAt: Date;
-
 }
+
+export const JobSchema = SchemaFactory.createForClass(Job);

@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { timestamp } from 'rxjs';
 
 export type UserDocument = HydratedDocument<User>;
 
