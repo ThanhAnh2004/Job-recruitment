@@ -1,8 +1,9 @@
-import { Prop, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
-export type ResumeDocumet = HydratedDocument<Resume>;
+export type ResumeDocument = HydratedDocument<Resume>;
 
+@Schema({ timestamps: true })
 export class Resume {
     @Prop()
     email: string;
@@ -19,11 +20,14 @@ export class Resume {
     @Prop()
     jobId: mongoose.Schema.Types.ObjectId;
 
+    @Prop()
+    companyId: mongoose.Schema.Types.ObjectId;
+
     @Prop({ type: mongoose.Schema.Types.Array })
     history: {
         status: string,
-        updateAt: Date,
-        updateBy: {
+        updatedAt: Date,
+        updatedBy: {
             _id: mongoose.Schema.Types.ObjectId,
             email: string
         }
@@ -40,6 +44,12 @@ export class Resume {
 
     @Prop()
     deletedAt: Date;
+
+    @Prop({ type: Object })
+    deletedBy: {
+        _id: mongoose.Schema.Types.ObjectId,
+        email: string
+    }
 
     @Prop({ type: Object })
     createdBy: {
