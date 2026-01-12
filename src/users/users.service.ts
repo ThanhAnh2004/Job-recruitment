@@ -111,13 +111,14 @@ export class UsersService {
     return await this.userModel.findOne({
       _id: id
     }).select('-password')
+      .populate({ path: 'role', select: { _id: 1, name: 1 } })
   }
 
   findOneByUserName(userName: string) {
 
     return this.userModel.findOne({
       email: userName
-    })
+    }).populate({ path: 'role', select: { name: 1, permissions: 1 } })
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
@@ -141,6 +142,11 @@ export class UsersService {
   async delete(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return 'Not found user';
+
+    const foundUser = await this.userModel.findById(id);
+    if (foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException("The admin account cannot be deleted");
+    }
 
     await this.userModel.updateOne({ _id: id },
       {

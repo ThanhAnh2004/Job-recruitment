@@ -7,6 +7,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import path from 'path';
 
 @Injectable()
 export class RolesService {
@@ -34,11 +35,11 @@ export class RolesService {
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
-    const isExist = await this.roleModel.findOne({ name: updateRoleDto.name });
 
-    if (isExist) {
-      throw new BadRequestException(`Role with name ${updateRoleDto.name} is exist`);
-    }
+    // const isExist = await this.roleModel.findOne({ name: updateRoleDto.name });
+    // if (isExist) {
+    //   throw new BadRequestException(`Role with name ${updateRoleDto.name} is exist`);
+    // }
 
     return await this.roleModel.updateOne(
       { _id: id },
@@ -87,15 +88,19 @@ export class RolesService {
       throw new BadRequestException(`Role with id: ${id} not exist`);
     }
 
-    const role = await this.roleModel.findById(id);
-
-    return role;
+    return (await this.roleModel.findById(id))
+      .populate({ path: 'permissions', select: { _id: 1, apiPath: 1, method: 1, module: 1 } })
   }
 
 
   async delete(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Role with id: ${id} not exist`);
+    }
+
+    const foundRole = await this.roleModel.findById(id)
+    if (foundRole.name === 'ADMIN') {
+      throw new BadRequestException('Cannot delete account has role admin')
     }
 
     await this.roleModel.updateOne(
