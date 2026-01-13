@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { response, Response } from 'express';
 import ms from 'ms';
+import { RolesService } from 'src/roles/roles.service';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
@@ -11,6 +12,7 @@ import { UsersService } from 'src/users/users.service';
 export class AuthService {
     constructor(
         private usersService: UsersService,
+        private roleService: RolesService,
         private jwtService: JwtService,
         private configservice: ConfigService,
     ) { }
@@ -22,14 +24,21 @@ export class AuthService {
             const isValid = this.usersService.isValidPassWord(password, user.password);
 
             if (isValid === true) {
-                return user;
+                const userRole = user.role as unknown as { _id: string, name: string }
+                const temp = await this.roleService.findById(userRole._id)
+
+                const objUser = {
+                    ...user.toObject(),
+                    permissions: temp?.permissions ?? []
+                }
+                return objUser;
             }
         }
         return null;
     }
 
     async login(user: IUser, response: Response) {
-        const { _id, name, email, role } = user;
+        const { _id, name, email, role, permissions } = user;
         const payload = {
             sub: "token login",
             iss: "from server",
@@ -57,6 +66,7 @@ export class AuthService {
                 name,
                 email,
                 role,
+                permissions
             }
         }
     }
