@@ -15,6 +15,7 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { DatabasesModule } from './databases/databases.module';
 import { SubcribersModule } from './subcribers/subcribers.module';
+import { MailModule } from './mail/mail.module';
 
 
 @Module({
@@ -43,7 +44,8 @@ import { SubcribersModule } from './subcribers/subcribers.module';
     PermissionsModule,
     RolesModule,
     DatabasesModule,
-    SubcribersModule
+    SubcribersModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],
